@@ -20,7 +20,6 @@ except ImportError:
 
 
 class GoogleBlobstoreTemporaryUploadedFile(TemporaryUploadedFile):
-    DEFAULT_CHUNK_SIZE = 256 * 1024
 
     def __init__(self, name, content_type, size, charset,
                  content_type_extra=None):
@@ -61,7 +60,6 @@ class GoogleBlobstoreTemporaryUploadedFile(TemporaryUploadedFile):
 
 
 class GoogleBlobstoreTemporaryFileUploadHandler(TemporaryFileUploadHandler):
-    chunk_size = 256 * 1024
 
     def new_file(self, file_name, *args, **kwargs):
         super(TemporaryFileUploadHandler, self).new_file(
@@ -126,10 +124,7 @@ class GoogleCloudStorage(Storage):
         except:
             pass
 
-        while True:
-            chunk = content.read(256 * 1024)
-            if not chunk:
-                break
+        for chunk in content.chunks():
             gss_file.write(chunk)
 
         try:

@@ -1,21 +1,39 @@
+import os
+import time
 from setuptools import setup
-from os.path import join, dirname
+from os.path import join, dirname, abspath
 
-__version__ = '0.0.1'
-__author__ = 'Anton Larkin'
+__version__ = '0.0'
+__author__ = 'APS Lite team'
 
+
+def version():
+    def version_file(mode='r'):
+        return open(join(dirname(abspath(__file__)), 'version.txt'), mode)
+
+    if os.getenv('TRAVIS'):
+        build_version = os.getenv('TRAVIS_BUILD_NUMBER')
+    elif os.getenv('JENKINS_HOME'):
+        build_version = 'jenkins{}'.format(os.getenv('BUILD_NUMBER'))
+    else:
+        build_version = 'dev{}'.format(int(time.time()))
+
+    with version_file('w') as verfile:
+        verfile.write('{0}.{1}'.format(__version__, build_version))
+
+    with version_file() as verfile:
+        data = verfile.readlines()
+        return data[0].strip()
 
 setup(
     name='django-gocs',
     packages=['django_gocs'],
-    version=__version__,
+    version=version(),
     description='Django file storage backend and temporary file handler for '
                 'Google Cloud Storage',
     long_description=open(join(dirname(__file__), 'README.md')).read(),
     author=__author__,
-    author_email='ap-sweeft@parallels.com',
-    maintainer='alarkin',
-    maintainer_email='alarkin@odin.com',
+    author_email='aps@odin.com',
     install_requires=[
         'django',
         'GoogleAppEngineCloudStorageClient==1.9.15.0'
