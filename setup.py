@@ -15,8 +15,7 @@ def version():
 
     if os.path.exists(path_version):
         with version_file() as verfile:
-            data = verfile.readlines()
-            return data[0].strip()
+            return verfile.readline().strip()
 
     if os.getenv('TRAVIS'):
         build_version = os.getenv('TRAVIS_BUILD_NUMBER')
@@ -29,8 +28,7 @@ def version():
         verfile.write('{0}.{1}'.format(__version__, build_version))
 
     with version_file() as verfile:
-        data = verfile.readlines()
-        return data[0].strip()
+        return verfile.readline().strip()
 
 setup(
     name='django-gocs',
