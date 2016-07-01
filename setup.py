@@ -8,8 +8,14 @@ __author__ = 'APS Lite team'
 
 
 def version():
+    path_version = join(dirname(abspath(__file__)), 'version.txt')
+
     def version_file(mode='r'):
-        return open(join(dirname(abspath(__file__)), 'version.txt'), mode)
+        return open(path_version, mode)
+
+    if os.path.exists(path_version):
+        with version_file() as verfile:
+            return verfile.readline().strip()
 
     if os.getenv('TRAVIS'):
         build_version = os.getenv('TRAVIS_BUILD_NUMBER')
@@ -22,8 +28,7 @@ def version():
         verfile.write('{0}.{1}'.format(__version__, build_version))
 
     with version_file() as verfile:
-        data = verfile.readlines()
-        return data[0].strip()
+        return verfile.readline().strip()
 
 setup(
     name='django-gocs',
