@@ -41,7 +41,7 @@ setup(
     author_email='aps@odin.com',
     install_requires=[
         'django',
-        'GoogleAppEngineCloudStorageClient==1.9.15.0'
+        'GoogleAppEngineCloudStorageClient>=1.9.15.0'
     ],
     url='https://github.com/odin-public/django-gocs',
     keywords=['django', 'storage', 'gcs', 'google cloud storage'],
