@@ -2,21 +2,26 @@
 Google Cloud Storage file backend and temporary handler for Django
 """
 
-import os
 import errno
 import mimetypes
+import os
 
 from django.conf import settings
 from django.core.files.storage import Storage
 from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
-from django.utils.deconstruct import deconstructible
 from django.utils.crypto import get_random_string
+from django.utils.deconstruct import deconstructible
 
 try:
     import cloudstorage as gcs
 except ImportError:
     pass
+
+
+def is_gae_server():
+    server_software = os.getenv("SERVER_SOFTWARE", "")
+    return server_software.startswith("Google App Engine")
 
 
 class GoogleBlobstoreTemporaryUploadedFile(TemporaryUploadedFile):
@@ -81,13 +86,14 @@ class GoogleBlobstoreTemporaryFileUploadHandler(TemporaryFileUploadHandler):
 
 @deconstructible
 class GoogleCloudStorage(Storage):
-    def __init__(self, location=None, base_url=None):
+    def __init__(self, location=None, base_url=None, force_use_gcs=False):
         if location is None:
             location = settings.GOOGLE_CLOUD_STORAGE_BUCKET
         self.location = location
         if base_url is None:
             base_url = settings.GOOGLE_CLOUD_STORAGE_URL
         self.base_url = base_url
+        self.force_use_gcs = force_use_gcs
 
     def _open(self, name, mode='r'):
         filename = self.location + "/" + name
@@ -184,18 +190,18 @@ class GoogleCloudStorage(Storage):
         return self.created_time(name)
 
     def url(self, name):
-        server_software = os.getenv("SERVER_SOFTWARE", "")
-        if not server_software.startswith("Google App Engine"):
-            # we need this in order to display images, links to files, etc
-            # from the local appengine server
-            from google.appengine.api.blobstore import create_gs_key
+        if self.force_use_gcs or is_gae_server():
+            return '{}/{}'.format(self.base_url, name)
 
-            filename = "/gs" + self.location + "/" + name
-            key = create_gs_key(filename)
-            local_base_url = getattr(settings, "GOOGLE_CLOUD_STORAGE_DEV_URL",
-                                     "http://localhost:8001/blobstore/blob/")
-            return local_base_url + key + "?display=inline"
-        return self.base_url + "/" + name
+        # we need this in order to display images, links to files, etc
+        # from the local appengine server
+        from google.appengine.api.blobstore import create_gs_key
+
+        filename = '/gs{}/{}'.format(self.location, name)
+        key = create_gs_key(filename)
+        local_base_url = getattr(settings, "GOOGLE_CLOUD_STORAGE_DEV_URL",
+                                 "http://localhost:8001/blobstore/blob/")
+        return '{}{}?display=inline'.format(local_base_url, key)
 
     def statFile(self, name):
         filename = self.location + "/" + name
