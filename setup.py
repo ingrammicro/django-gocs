@@ -43,7 +43,7 @@ setup(
         'django',
         'GoogleAppEngineCloudStorageClient>=1.9.15.0'
     ],
-    url='https://github.com/odin-public/django-gocs',
+    url='https://github.com/ingrammicro/django-gocs',
     keywords=['django', 'storage', 'gcs', 'google cloud storage'],
     classifiers=[],
 )
