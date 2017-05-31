@@ -1,6 +1,6 @@
 django-gocs
 ===========================
-[![Build Status](https://travis-ci.org/odin-public/django-gocs.svg?branch=master)](https://travis-ci.org/odin-public/django-gocs)
+[![Build Status](https://travis-ci.org/ingrammicro/django-gocs.svg?branch=master)](https://travis-ci.org/ingrammicro/django-gocs)
 Google Cloud Storage file backend for Django
 
 If you run your projects on Google's appengine and you are using the django framework you might need this
