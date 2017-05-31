@@ -19,7 +19,7 @@ except ImportError:
     pass
 
 
-def is_google_server():
+def is_gae_server():
     server_software = os.getenv("SERVER_SOFTWARE", "")
     return server_software.startswith("Google App Engine")
 
@@ -190,18 +190,18 @@ class GoogleCloudStorage(Storage):
         return self.created_time(name)
 
     def url(self, name):
-        if self.force_use_gcs or is_google_server():
+        if self.force_use_gcs or is_gae_server():
             return self.base_url + "/" + name
-        else:
-            # we need this in order to display images, links to files, etc
-            # from the local appengine server
-            from google.appengine.api.blobstore import create_gs_key
 
-            filename = "/gs" + self.location + "/" + name
-            key = create_gs_key(filename)
-            local_base_url = getattr(settings, "GOOGLE_CLOUD_STORAGE_DEV_URL",
-                                     "http://localhost:8001/blobstore/blob/")
-            return local_base_url + key + "?display=inline"
+        # we need this in order to display images, links to files, etc
+        # from the local appengine server
+        from google.appengine.api.blobstore import create_gs_key
+
+        filename = "/gs" + self.location + "/" + name
+        key = create_gs_key(filename)
+        local_base_url = getattr(settings, "GOOGLE_CLOUD_STORAGE_DEV_URL",
+                                 "http://localhost:8001/blobstore/blob/")
+        return local_base_url + key + "?display=inline"
 
     def statFile(self, name):
         filename = self.location + "/" + name
