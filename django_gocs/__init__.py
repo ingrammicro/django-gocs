@@ -19,9 +19,9 @@ except ImportError:
     pass
 
 
-def is_dev_server():
+def is_google_server():
     server_software = os.getenv("SERVER_SOFTWARE", "")
-    return not server_software.startswith("Google App Engine")
+    return server_software.startswith("Google App Engine")
 
 
 class GoogleBlobstoreTemporaryUploadedFile(TemporaryUploadedFile):
@@ -190,7 +190,7 @@ class GoogleCloudStorage(Storage):
         return self.created_time(name)
 
     def url(self, name):
-        if self.force_use_gcs or not is_dev_server():
+        if self.force_use_gcs or is_google_server():
             return self.base_url + "/" + name
         else:
             # we need this in order to display images, links to files, etc
