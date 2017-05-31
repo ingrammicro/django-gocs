@@ -2,16 +2,16 @@
 Google Cloud Storage file backend and temporary handler for Django
 """
 
-import os
 import errno
 import mimetypes
+import os
 
 from django.conf import settings
 from django.core.files.storage import Storage
 from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
-from django.utils.deconstruct import deconstructible
 from django.utils.crypto import get_random_string
+from django.utils.deconstruct import deconstructible
 
 try:
     import cloudstorage as gcs
@@ -191,17 +191,17 @@ class GoogleCloudStorage(Storage):
 
     def url(self, name):
         if self.force_use_gcs or is_gae_server():
-            return self.base_url + "/" + name
+            return '{}/{}'.format(self.base_url, name)
 
         # we need this in order to display images, links to files, etc
         # from the local appengine server
         from google.appengine.api.blobstore import create_gs_key
 
-        filename = "/gs" + self.location + "/" + name
+        filename = '/gs{}/{}'.format(self.location, name)
         key = create_gs_key(filename)
         local_base_url = getattr(settings, "GOOGLE_CLOUD_STORAGE_DEV_URL",
                                  "http://localhost:8001/blobstore/blob/")
-        return local_base_url + key + "?display=inline"
+        return '{}{}?display=inline'.format(local_base_url, key)
 
     def statFile(self, name):
         filename = self.location + "/" + name

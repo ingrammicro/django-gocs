@@ -1,7 +1,7 @@
 import os
 import time
+from os.path import abspath, dirname, join
 from setuptools import setup
-from os.path import join, dirname, abspath
 
 __version__ = '0.0'
 __author__ = 'APS Lite team'
