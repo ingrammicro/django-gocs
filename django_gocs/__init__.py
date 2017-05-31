@@ -20,8 +20,8 @@ except ImportError:
 
 
 def is_gae_server():
-    server_software = os.getenv("SERVER_SOFTWARE", "")
-    return server_software.startswith("Google App Engine")
+    server_software = os.getenv('SERVER_SOFTWARE', '')
+    return server_software.startswith('Google App Engine')
 
 
 class GoogleBlobstoreTemporaryUploadedFile(TemporaryUploadedFile):
@@ -96,7 +96,7 @@ class GoogleCloudStorage(Storage):
         self.force_use_gcs = force_use_gcs
 
     def _open(self, name, mode='r'):
-        filename = self.location + "/" + name
+        filename = '{}/{}'.format(self.location, name)
 
         # rb is not supported
         if mode == 'rb':
@@ -114,7 +114,7 @@ class GoogleCloudStorage(Storage):
         return gcs_file
 
     def _save(self, name, content):
-        filename = self.location + "/" + name
+        filename = '{}/{}'.format(self.location, name)
         filename = os.path.normpath(filename)
         type, encoding = mimetypes.guess_type(name)
         cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
@@ -142,7 +142,8 @@ class GoogleCloudStorage(Storage):
         return name
 
     def delete(self, name):
-        filename = self.location+"/"+name
+        filename = '{}/{}'.format(self.location, name)
+
         try:
             gcs.delete(filename)
         except gcs.NotFoundError:
@@ -163,14 +164,14 @@ class GoogleCloudStorage(Storage):
             head, tail = os.path.split(filePath)
             subPath = os.path.join(self.location, path)
             head = head.replace(subPath, '', 1)
-            if head == "":
+            if head == '':
                 head = None
             if not head and tail:
                 files.append(tail)
             if head:
-                if not head.startswith("/"):
-                    head = "/" + head
-                dir = head.split("/")[1]
+                if not head.startswith('/'):
+                    head = '/{}'.format(head)
+                dir = head.split('/')[1]
                 if dir not in directories:
                     directories.append(dir)
         return directories, files
@@ -199,10 +200,11 @@ class GoogleCloudStorage(Storage):
 
         filename = '/gs{}/{}'.format(self.location, name)
         key = create_gs_key(filename)
-        local_base_url = getattr(settings, "GOOGLE_CLOUD_STORAGE_DEV_URL",
-                                 "http://localhost:8001/blobstore/blob/")
+        local_base_url = getattr(settings, 'GOOGLE_CLOUD_STORAGE_DEV_URL',
+                                 'http://localhost:8001/blobstore/blob/')
         return '{}{}?display=inline'.format(local_base_url, key)
 
     def statFile(self, name):
-        filename = self.location + "/" + name
+        filename = '{}/{}'.format(self.location, name)
+
         return gcs.stat(filename)
